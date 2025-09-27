@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/feature/auth/auth_view.dart';
+import 'package:notes_app/feature/home/home_view.dart';
 import 'package:notes_app/feature/splash/splash_view.dart';
 import 'package:notes_app/product/navigate/navigation_enums.dart';
 
@@ -10,6 +11,8 @@ class NavigationRoute {
         return _normalNavigate(const SplashView());
       case NavigationEnums.auth:
         return _normalNavigate(const AuthView());
+              case NavigationEnums.home:
+        return _normalNavigate(const HomeView());
     }
   }
 

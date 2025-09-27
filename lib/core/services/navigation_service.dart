@@ -8,6 +8,8 @@ abstract class INavigationService {
 }
 
 class NavigationService implements INavigationService {
+  NavigationService._init();
+  static final NavigationService instance = NavigationService._init();
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
   @override

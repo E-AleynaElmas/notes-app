@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:notes_app/core/services/navigation_service.dart';
 import 'package:notes_app/product/init/application_init.dart';
+import 'package:notes_app/product/navigate/navigation_route.dart';
+import 'package:notes_app/product/theme/theme_styles.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,8 +16,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(body: Center(child: Text('Hello World!'))),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      navigatorKey: NavigationService.instance.navigatorKey,
+      onGenerateRoute: NavigationRoute().generateRoute,
+      theme: ThemeStyles.darkTheme(context),
     );
   }
 }

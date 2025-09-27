@@ -12,43 +12,42 @@ class ThemeStyles {
   static Color get warningColor => HexColor(AppHexColors.WARNING_COLOR);
   static Color get errorColor => HexColor(AppHexColors.ERROR_COLOR);
   static Color get blackColor => HexColor(AppHexColors.BLACK_COLOR);
-  static Color get backgroundColor => HexColor(AppHexColors.LIGHT_THEME_BACKGROUND);
+  static Color get backgroundColor => HexColor(AppHexColors.BACKGROUND_COLOR);
   static Color get grayColor => HexColor(AppHexColors.GRAY_COLOR);
 
-  static ThemeData lightTheme(BuildContext context) => ThemeData.light().copyWith(
+  static ThemeData darkTheme(BuildContext context) => ThemeData.dark().copyWith(
     scaffoldBackgroundColor: backgroundColor,
     primaryColor: primaryColor,
-    colorScheme: _colorSchemeLight,
+    colorScheme: _colorSchemeDark,
     appBarTheme: AppBarTheme(
-      backgroundColor: primaryColor,
+      backgroundColor: secondaryColor,
       elevation: 0,
-      iconTheme: IconThemeData(color: backgroundColor),
+      iconTheme: IconThemeData(color: primaryColor),
       titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-        color: backgroundColor,
+        color: primaryColor,
         fontWeight: FontWeight.bold,
         fontSize: 17,
         fontFamily: _fontFamily,
       ),
       systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
     ),
-
     textTheme: Theme.of(
       context,
-    ).textTheme.apply(fontFamily: _fontFamily, bodyColor: blackColor, displayColor: blackColor),
+    ).textTheme.apply(fontFamily: _fontFamily, bodyColor: primaryColor, displayColor: primaryColor),
     listTileTheme: ListTileThemeData(
-      textColor: blackColor,
-      titleTextStyle: TextStyle(color: blackColor, fontSize: 16, fontWeight: FontWeight.w500),
+      textColor: primaryColor,
+      titleTextStyle: TextStyle(color: primaryColor, fontSize: 16, fontWeight: FontWeight.w500),
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: backgroundColor,
-      foregroundColor: primaryColor,
+      backgroundColor: primaryColor,
+      foregroundColor: blackColor,
     ),
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
-        padding: WidgetStatePropertyAll(EdgeInsets.zero),
+        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
         textStyle: WidgetStateProperty.all(TextStyle(color: primaryColor, fontWeight: FontWeight.bold)),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
@@ -56,31 +55,32 @@ class ThemeStyles {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryColor,
-        foregroundColor: backgroundColor,
+        foregroundColor: blackColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        textStyle: TextStyle(fontWeight: FontWeight.bold, fontFamily: _fontFamily, color: backgroundColor),
+        textStyle: TextStyle(fontWeight: FontWeight.bold, fontFamily: _fontFamily, color: blackColor),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: secondaryColor,
+      fillColor: grayColor,
       border: OutlineInputBorder(
-        borderSide: BorderSide(color: primaryColor),
+        borderSide: BorderSide(color: grayColor),
         borderRadius: BorderRadius.circular(12),
       ),
+      hintStyle: TextStyle(color: grayColor.withOpacity(0.7)),
     ),
   );
 
-  static ColorScheme get _colorSchemeLight => ColorScheme(
-    brightness: Brightness.light,
+  static ColorScheme get _colorSchemeDark => ColorScheme(
+    brightness: Brightness.dark,
     primary: primaryColor,
-    onPrimary: backgroundColor,
+    onPrimary: blackColor,
     secondary: secondaryColor,
-    onSecondary: blackColor,
+    onSecondary: primaryColor,
     tertiary: grayColor,
     error: errorColor,
-    onError: errorColor,
-    surface: warningColor,
-    onSurface: warningColor,
+    onError: blackColor,
+    surface: backgroundColor,
+    onSurface: primaryColor,
   );
 }
