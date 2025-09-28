@@ -101,6 +101,22 @@ class HomeViewModel extends BaseViewModel {
     }
   }
 
+  Future<void> navigateToNoteDetail(NoteModel note) async {
+    final result = await NavigationService.instance.navigateToPage<bool>(
+      navEnum: NavigationEnums.noteDetail,
+      data: note,
+    );
+
+    if (result == true) {
+      await loadNotes();
+      NavigationService.instance.showSnackBar('Note deleted successfully!');
+    } else if (result == false) {
+      await loadNotes();
+    } else {
+      await loadNotes();
+    }
+  }
+
   Future<bool> logout() async {
     setBusy(true);
     clearErrors();

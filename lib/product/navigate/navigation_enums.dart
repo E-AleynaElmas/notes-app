@@ -3,7 +3,8 @@ enum NavigationEnums {
   auth,
   home,
   newNote,
-  editNote;
+  editNote,
+  noteDetail;
 
   String get rawValue => switch (this) {
     _ => '/$name',

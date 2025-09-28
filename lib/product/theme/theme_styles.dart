@@ -68,7 +68,7 @@ class ThemeStyles {
         borderSide: BorderSide(color: grayColor),
         borderRadius: BorderRadius.circular(12),
       ),
-      hintStyle: TextStyle(color: grayColor.withOpacity(0.7)),
+      hintStyle: TextStyle(color: grayColor.withValues(alpha:0.7)),
     ),
   );
 

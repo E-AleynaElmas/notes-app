@@ -96,7 +96,7 @@ class HomeView extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected ? ThemeStyles.whiteColor : Colors.transparent,
                   borderRadius: LayoutConstants.border20Button,
-                  border: isSelected ? null : Border.all(color: Colors.grey.withOpacity(0.3)),
+                  border: isSelected ? null : Border.all(color: Colors.grey.withValues(alpha:0.3)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -151,7 +151,7 @@ class HomeView extends StatelessWidget {
             Icon(
               isFiltered || hasSearch ? Icons.search_off : Icons.note_add,
               size: 80,
-              color: ThemeStyles.whiteColor.withOpacity(0.3),
+              color: ThemeStyles.whiteColor.withValues(alpha:0.3),
             ),
             LayoutConstants.emptyHeight20,
             Text(
@@ -164,7 +164,7 @@ class HomeView extends StatelessWidget {
               isFiltered || hasSearch
                   ? 'Try adjusting your search or filter'
                   : 'Tap the + button to create your first note',
-              style: bodyL.copyWith(color: ThemeStyles.whiteColor.withOpacity(0.7)),
+              style: bodyL.copyWith(color: ThemeStyles.whiteColor.withValues(alpha:0.7)),
               textAlign: TextAlign.center,
             ),
             if (!isFiltered && !hasSearch) ...[
@@ -188,55 +188,58 @@ class HomeView extends StatelessWidget {
   }
 
   Widget _buildNoteCard(NoteModel note, BuildContext context, HomeViewModel viewModel) {
-    return Container(
-      padding: LayoutConstants.padding16All,
-      decoration: BoxDecoration(
-        color: ColorUtils.parseColor(note.color),
-        borderRadius: LayoutConstants.border16Button,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(child: Text(note.title, style: bodyXL.black.w600)),
-              if (note.isPinned) ...[
-                const SizedBox(width: 8),
-                Icon(Icons.push_pin, size: 16, color: Colors.black.withOpacity(0.6)),
+    return GestureDetector(
+      onTap: () => viewModel.navigateToNoteDetail(note),
+      child: Container(
+        padding: LayoutConstants.padding16All,
+        decoration: BoxDecoration(
+          color: ColorUtils.parseColor(note.color),
+          borderRadius: LayoutConstants.border16Button,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(child: Text(note.title, style: bodyXL.black.w600)),
+                if (note.isPinned) ...[
+                  const SizedBox(width: 8),
+                  Icon(Icons.push_pin, size: 16, color: Colors.black.withValues(alpha:0.6)),
+                ],
               ],
+            ),
+
+            if (note.content.isNotEmpty) ...[
+              LayoutConstants.emptyHeight8,
+              Text(
+                note.content,
+                style: bodyS.black.copyWith(height: 1.4),
+                maxLines: 6,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
-          ),
-    
-          if (note.content.isNotEmpty) ...[
-            LayoutConstants.emptyHeight8,
-            Text(
-              note.content,
-              style: bodyS.black.copyWith(height: 1.4),
-              maxLines: 6,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-    
-          if (note.tags.isNotEmpty) ...[
-            LayoutConstants.emptyHeight8,
-            Wrap(
-              spacing: 4,
-              children: note.tags
-                  .take(3)
-                  .map(
-                    (tag) => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
+
+            if (note.tags.isNotEmpty) ...[
+              LayoutConstants.emptyHeight8,
+              Wrap(
+                spacing: 4,
+                children: note.tags
+                    .take(3)
+                    .map(
+                      (tag) => Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha:0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text('#$tag', style: const TextStyle(fontSize: 10, color: Colors.black54)),
                       ),
-                      child: Text('#$tag', style: const TextStyle(fontSize: 10, color: Colors.black54)),
-                    ),
-                  )
-                  .toList(),
-            ),
+                    )
+                    .toList(),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
