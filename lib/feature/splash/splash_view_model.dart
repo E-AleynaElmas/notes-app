@@ -1,4 +1,3 @@
-// lib/feature/splash/splash_viewmodel.dart
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:notes_app/core/services/navigation_service.dart';

@@ -14,17 +14,18 @@ class ThemeStyles {
   static Color get blackColor => HexColor(AppHexColors.BLACK_COLOR);
   static Color get backgroundColor => HexColor(AppHexColors.BACKGROUND_COLOR);
   static Color get grayColor => HexColor(AppHexColors.GRAY_COLOR);
+  static Color get whiteColor => HexColor(AppHexColors.WHITE_COLOR);
 
   static ThemeData darkTheme(BuildContext context) => ThemeData.dark().copyWith(
     scaffoldBackgroundColor: backgroundColor,
     primaryColor: primaryColor,
     colorScheme: _colorSchemeDark,
     appBarTheme: AppBarTheme(
-      backgroundColor: secondaryColor,
+      backgroundColor: backgroundColor,
       elevation: 0,
-      iconTheme: IconThemeData(color: primaryColor),
+      iconTheme: IconThemeData(color: whiteColor),
       titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-        color: primaryColor,
+        color: whiteColor,
         fontWeight: FontWeight.bold,
         fontSize: 17,
         fontFamily: _fontFamily,

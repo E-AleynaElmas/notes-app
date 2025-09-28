@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/theme_styles.dart';
 
 TextStyle get _base => const TextStyle();
 
@@ -56,5 +57,13 @@ extension TextStyleExtension on TextStyle {
   TextStyle get medium => copyWith(fontWeight: FontWeight.w500);
   TextStyle get w600 => copyWith(fontWeight: FontWeight.w600);
   TextStyle get bold => copyWith(fontWeight: FontWeight.w700);
-  TextStyle get black => copyWith(fontWeight: FontWeight.w900);
+  TextStyle get extraBold => copyWith(fontWeight: FontWeight.w900);
+  
+  // Color extensions
+  TextStyle get white => copyWith(color: ThemeStyles.whiteColor);
+  TextStyle get black => copyWith(color: ThemeStyles.blackColor);
+  TextStyle get primary => copyWith(color: ThemeStyles.primaryColor);
+  TextStyle get secondary => copyWith(color: ThemeStyles.secondaryColor);
+  TextStyle get error => copyWith(color: ThemeStyles.errorColor);
+  TextStyle get gray => copyWith(color: ThemeStyles.grayColor);
 }

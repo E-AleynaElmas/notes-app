@@ -14,16 +14,18 @@ class NavigationService implements INavigationService {
 
   @override
   Future<T?> navigateToPage<T>({required NavigationEnums navEnum, Object? data}) async {
-    return await navigatorKey.currentState?.pushNamed(navEnum.rawValue, arguments: data);
+    final result = await navigatorKey.currentState?.pushNamed(navEnum.rawValue, arguments: data);
+    return result as T?;
   }
 
   @override
   Future<T?> navigateToPageClear<T>({required NavigationEnums navEnum, Object? data}) async {
-    return await navigatorKey.currentState?.pushNamedAndRemoveUntil(
+    final result = await navigatorKey.currentState?.pushNamedAndRemoveUntil(
       navEnum.rawValue,
       (Route<dynamic> route) => false,
       arguments: data,
     );
+    return result as T?;
   }
 
   @override

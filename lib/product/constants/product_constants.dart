@@ -8,9 +8,8 @@ class ProductConstants {
   ProductConstants._init();
 
   final String appName = 'Notes app';
-  final String institutionalUrl = 'https://www.getvenlo.com/';
-  static const String basePath = 'panel.getvenlo.com';
-  static const String baseUrl = 'https://$basePath';
-  static const String socketUrl = 'wss://$basePath';
-  final String apiUrl = '$baseUrl/api/';
+  final String institutionalUrl = 'https://www.api.notesapp.com';
+  
+  static const String localApiUrl = 'http://localhost:8000';
+  final String apiUrl = '$localApiUrl/api/v1/';
 }

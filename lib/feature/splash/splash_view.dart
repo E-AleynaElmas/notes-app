@@ -1,4 +1,3 @@
-// lib/feature/splash/splash_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:notes_app/feature/splash/splash_view_model.dart';
@@ -11,15 +10,12 @@ class SplashView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder<SplashViewModel>.nonReactive(
       viewModelBuilder: () => SplashViewModel(),
-      onViewModelReady: (vm) {
-        // >>> EN ÖNEMLİ NOKTA: build bittikten SONRA başlat
+      onViewModelReady: (viewModel) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          vm.start();
+          viewModel.start();
         });
       },
-      builder: (_, __, ___) => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      builder: (context, viewModel, child) => const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
   }
 }
