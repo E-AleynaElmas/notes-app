@@ -77,7 +77,7 @@ class NetworkManager {
       return _showError<T>(
         '$path ${requestType.name}',
         'Error: ${dioError.error} | Status Message: ${dioError.message}',
-        dioError.response!.data,
+        dioError.response?.data,
         time,
       );
     } catch (error) {
