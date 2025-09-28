@@ -1,7 +1,9 @@
 enum NavigationEnums {
   init,
   auth,
-  home;
+  home,
+  newNote,
+  editNote;
 
   String get rawValue => switch (this) {
     _ => '/$name',
