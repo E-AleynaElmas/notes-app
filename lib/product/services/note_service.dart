@@ -1,5 +1,6 @@
 import 'package:notes_app/product/manager/network_manager.dart';
 import 'package:notes_app/product/models/note_model.dart';
+import 'package:notes_app/product/models/pagination_info.dart';
 import 'package:notes_app/product/models/simple_result.dart';
 import 'package:notes_app/product/constants/note_endpoints.dart';
 import 'package:notes_app/product/constants/note_query_params.dart';
@@ -47,9 +48,11 @@ class NoteService implements INoteService {
         final responseData = result.data as Map<String, dynamic>;
         final notesList = responseData['notes'] as List<dynamic>;
 
+        final pagination = PaginationInfo.fromJson(responseData);
+
         final notes = notesList.map((noteJson) => NoteModel.fromJson(noteJson)).toList();
 
-        return SimpleResult<List<NoteModel>>(status: true, data: notes);
+        return SimpleResult<List<NoteModel>>(status: true, data: notes, pagination: pagination);
       } else {
         return SimpleResult<List<NoteModel>>(status: false, message: result.message ?? 'Not listesi alınamadı');
       }
