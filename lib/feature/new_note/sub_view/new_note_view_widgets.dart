@@ -25,18 +25,24 @@ extension _NewNoteViewParts on NewNoteView {
       children: [
         Text('Title', style: bodyXL.white.w600),
         LayoutConstants.emptyHeight8,
-        Container(
-          padding: LayoutConstants.padding16All,
-          decoration: BoxDecoration(color: const Color(0xFF2C2C2E), borderRadius: LayoutConstants.border12Button),
+        AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            borderRadius: LayoutConstants.border12Button,
+            border: Border.all(color: viewModel.isTitleFocused ? Color(0xFFFF9500) : Color(0xFF3A3A3C), width: 1),
+          ),
           child: TextFormField(
             controller: viewModel.titleController,
+            focusNode: viewModel.titleFocusNode,
             style: h4.white.bold,
             decoration: InputDecoration(
               hintText: 'Enter note title...',
-              hintStyle: h4.copyWith(color: ThemeStyles.whiteColor.withValues(alpha:0.54)),
+              hintStyle: h4.copyWith(color: ThemeStyles.whiteColor.withValues(alpha: 0.54)),
               border: InputBorder.none,
-              fillColor: Color(0xFF2C2C2E),
-              contentPadding: EdgeInsets.zero,
+              filled: false,
+              fillColor: Colors.transparent,
+              contentPadding: LayoutConstants.padding12All,
+              isDense: true,
             ),
             onChanged: (value) => viewModel.notifyListeners(),
           ),
@@ -66,9 +72,9 @@ extension _NewNoteViewParts on NewNoteView {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: LayoutConstants.size16, vertical: LayoutConstants.size8),
                   decoration: BoxDecoration(
-                    color: isSelected ? ThemeStyles.whiteColor : ThemeStyles.whiteColor.withValues(alpha:0.1),
+                    color: isSelected ? ThemeStyles.whiteColor : ThemeStyles.whiteColor.withValues(alpha: 0.1),
                     borderRadius: LayoutConstants.border20Button,
-                    border: isSelected ? null : Border.all(color: ThemeStyles.whiteColor.withValues(alpha:0.3)),
+                    border: isSelected ? null : Border.all(color: ThemeStyles.whiteColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     tag,
@@ -111,7 +117,7 @@ extension _NewNoteViewParts on NewNoteView {
                     color: color,
                     borderRadius: BorderRadius.circular(LayoutConstants.radius20),
                     border: Border.all(
-                      color: isSelected ? ThemeStyles.blackColor.withValues(alpha:0.87) : Colors.transparent,
+                      color: isSelected ? ThemeStyles.blackColor.withValues(alpha: 0.87) : Colors.transparent,
                       width: 3,
                     ),
                   ),
@@ -133,23 +139,92 @@ extension _NewNoteViewParts on NewNoteView {
       children: [
         Text('Content', style: bodyXL.white.w600),
         LayoutConstants.emptyHeight8,
-        Container(
-          padding: LayoutConstants.padding16All,
-          decoration: BoxDecoration(color: const Color(0xFF2C2C2E), borderRadius: LayoutConstants.border12Button),
-          child: TextFormField(
-            controller: viewModel.contentController,
-            style: bodyXL.white.copyWith(height: 1.5),
-            decoration: InputDecoration(
-              hintText: 'Write your note here...',
-              hintStyle: bodyXL.copyWith(color: ThemeStyles.whiteColor.withValues(alpha:0.54)),
-              border: InputBorder.none,
-              fillColor: Color(0xFF2C2C2E),
-              contentPadding: EdgeInsets.zero,
-            ),
-            maxLines: null,
-            minLines: LayoutConstants.size8.toInt(),
+        AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            borderRadius: LayoutConstants.border12Button,
+            border: Border.all(color: viewModel.isContentFocused ? Color(0xFFFF9500) : Color(0xFF3A3A3C), width: 1),
+          ),
+          child: Stack(
+            children: [
+              TextFormField(
+                controller: viewModel.contentController,
+                focusNode: viewModel.contentFocusNode,
+                enabled: !viewModel.isAiProcessing,
+                style: bodyXL.white.copyWith(
+                  height: 1.5,
+                  color: viewModel.isAiProcessing
+                      ? ThemeStyles.whiteColor.withValues(alpha: 0.3)
+                      : ThemeStyles.whiteColor,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Write your note here...',
+                  hintStyle: bodyXL.copyWith(color: ThemeStyles.whiteColor.withValues(alpha: 0.54)),
+                  border: InputBorder.none,
+                  filled: false,
+                  fillColor: Colors.transparent,
+                  contentPadding: EdgeInsets.fromLTRB(12, 12, 50, 12),
+                  isDense: true,
+                ),
+                maxLines: null,
+                minLines: 8,
+                onChanged: (value) => viewModel.notifyListeners(),
+              ),
+              if (viewModel.isAiProcessing)
+                Positioned.fill(
+                  child: AnimatedOpacity(
+                    opacity: 1.0,
+                    duration: Duration(milliseconds: 300),
+                    child: AIProcessingOverlayView(),
+                  ),
+                ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: GestureDetector(
+                  onTap: viewModel.canUseAI
+                      ? () async {
+                          await viewModel.improveContentWithAI();
+                        }
+                      : null,
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    padding: LayoutConstants.padding8All,
+                    decoration: BoxDecoration(
+                      color: viewModel.isAiProcessing
+                          ? Colors.orange.withValues(alpha: 0.3)
+                          : viewModel.canUseAI
+                          ? Colors.orange.withValues(alpha: 0.15)
+                          : Colors.grey.withValues(alpha: 0.1),
+                      borderRadius: LayoutConstants.border8Button,
+                      border: Border.all(
+                        color: viewModel.canUseAI
+                            ? Colors.orange.withValues(alpha: 0.6)
+                            : Colors.grey.withValues(alpha: 0.4),
+                        width: 1,
+                      ),
+                    ),
+                    child: viewModel.isAiProcessing
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                            ),
+                          )
+                        : Icon(Icons.auto_awesome, color: viewModel.canUseAI ? Colors.orange : Colors.grey, size: 20),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
+        if (viewModel.hasError)
+          Padding(
+            padding: LayoutConstants.padding8Vertical.copyWith(bottom: 0),
+            child: Text(viewModel.modelError, style: bodyM.copyWith(color: Colors.red)),
+          ),
       ],
     );
   }

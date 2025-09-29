@@ -4,6 +4,8 @@ import 'package:notes_app/core/utils/color_utils.dart';
 import 'package:notes_app/product/models/note_model.dart';
 import 'package:notes_app/product/models/simple_result.dart';
 import 'package:notes_app/product/services/note_service.dart';
+import 'package:notes_app/product/services/gemini_service.dart';
+import 'package:notes_app/product/constants/ai_constants.dart';
 
 class NewNoteViewModel extends BaseViewModel {
   final NoteModel? _noteToEdit;
@@ -16,10 +18,19 @@ class NewNoteViewModel extends BaseViewModel {
       _selectedTag = noteToEdit.tags.isNotEmpty ? noteToEdit.tags.first : 'Work';
       _isPinned = noteToEdit.isPinned;
     }
+    _setupFocusListeners();
   }
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
+  final FocusNode titleFocusNode = FocusNode();
+  final FocusNode contentFocusNode = FocusNode();
+
+  bool _isTitleFocused = false;
+  bool get isTitleFocused => _isTitleFocused;
+
+  bool _isContentFocused = false;
+  bool get isContentFocused => _isContentFocused;
 
   Color _selectedColor = const Color(0xFFFFF2CC);
   Color get selectedColor => _selectedColor;
@@ -46,8 +57,17 @@ class NewNoteViewModel extends BaseViewModel {
   List<Color> get availableColors => _availableColors;
 
   final NoteService _noteService = NoteService.instance;
+  final GeminiService _geminiService = GeminiService.instance;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  bool _isAiProcessing = false;
+  bool get isAiProcessing => _isAiProcessing;
+
+  bool get canUseAI {
+    return contentController.text.trim().length >= AIConstants.minContentLength && !_isAiProcessing;
+  }
 
   void selectColor(Color color) {
     _selectedColor = color;
@@ -112,10 +132,53 @@ class NewNoteViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  void _setupFocusListeners() {
+    titleFocusNode.addListener(() {
+      _isTitleFocused = titleFocusNode.hasFocus;
+      notifyListeners();
+    });
+
+    contentFocusNode.addListener(() {
+      _isContentFocused = contentFocusNode.hasFocus;
+      notifyListeners();
+    });
+  }
+
+  Future<void> improveContentWithAI() async {
+    final currentContent = contentController.text.trim();
+
+    if (currentContent.isEmpty) {
+      setError(AIConstants.emptyContentMessage);
+      return;
+    }
+
+    _isAiProcessing = true;
+    clearErrors();
+    notifyListeners();
+
+    try {
+      final result = await _geminiService.improveText(currentContent);
+
+      if (result.status && result.data != null) {
+        contentController.text = result.data!;
+        notifyListeners();
+      } else {
+        setError(result.message ?? AIConstants.aiErrorMessage);
+      }
+    } catch (e) {
+      setError('${AIConstants.aiErrorMessage}: $e');
+    } finally {
+      _isAiProcessing = false;
+      notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
     titleController.dispose();
     contentController.dispose();
+    titleFocusNode.dispose();
+    contentFocusNode.dispose();
     super.dispose();
   }
 }
