@@ -15,7 +15,7 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder<HomeViewModel>.reactive(
       viewModelBuilder: () => HomeViewModel(),
-      onViewModelReady: (viewModel) => viewModel.loadNotes(),
+      onViewModelReady: (viewModel) => viewModel.loadNotes(reset: true),
       builder: (context, viewModel, child) {
         return Scaffold(
           appBar: AppBar(
@@ -126,6 +126,7 @@ class HomeView extends StatelessWidget {
     return Padding(
       padding: LayoutConstants.padding20All.copyWith(bottom: 0),
       child: MasonryGridView.count(
+        controller: viewModel.scrollController,
         crossAxisCount: 2,
         mainAxisSpacing: LayoutConstants.size12,
         crossAxisSpacing: LayoutConstants.size12,

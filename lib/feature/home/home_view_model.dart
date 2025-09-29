@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart'; // <-- scroll controller için
 import 'package:notes_app/core/services/navigation_service.dart';
+import 'package:notes_app/product/constants/note_query_params.dart';
 import 'package:notes_app/product/navigate/navigation_enums.dart';
 import 'package:notes_app/product/services/auth_service.dart';
 import 'package:notes_app/product/services/note_service.dart';
@@ -12,7 +14,16 @@ class HomeViewModel extends BaseViewModel {
 
   HomeViewModel({IAuthService? auth, INoteService? noteService})
     : _auth = auth ?? AuthService.instance,
-      _noteService = noteService ?? NoteService.instance;
+      _noteService = noteService ?? NoteService.instance {
+    scrollController.addListener(() {
+      if (!_hasMore || _isLoadingMore || _isLoading) return;
+      final pos = scrollController.position;
+      if (pos.pixels >= pos.maxScrollExtent - 300) {
+        loadMoreNotes();
+      }
+    });
+  }
+  final ScrollController scrollController = ScrollController();
 
   String _searchQuery = '';
   String get searchQuery => _searchQuery;
@@ -27,7 +38,14 @@ class HomeViewModel extends BaseViewModel {
 
   List<NoteModel> _notes = [];
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   bool get isLoading => _isLoading;
+  bool get isLoadingMore => _isLoadingMore;
+
+  int _page = 1;
+  int _limit = NoteQueryParams.defaultLimit;
+  bool _hasMore = true;
+  bool get hasMore => _hasMore;
 
   List<NoteModel> get filteredNotes {
     List<NoteModel> filtered = _notes;
@@ -39,15 +57,32 @@ class HomeViewModel extends BaseViewModel {
 
   int get noteCount => filteredNotes.length;
 
-  Future<void> loadNotes() async {
+  Future<void> loadNotes({bool reset = false}) async {
+    if (reset) {
+      _page = 1;
+      _hasMore = true;
+      _notes = [];
+    }
     _isLoading = true;
     notifyListeners();
 
     try {
-      final result = await _noteService.getNotes(search: _searchQuery.isEmpty ? null : _searchQuery);
+      final result = await _noteService.getNotes(
+        search: _searchQuery.isEmpty ? null : _searchQuery,
+        page: _page,
+        limit: _limit,
+      );
 
       if (result.status && result.data != null) {
-        _notes = result.data!;
+        final fetched = result.data!;
+        if (_page == 1 && !reset) _notes = [];
+        _notes.addAll(fetched);
+        if (result.pagination != null) {
+          _limit = result.pagination!.pageSize;
+          _hasMore = result.pagination!.hasNext;
+        } else {
+          _hasMore = fetched.length == _limit;
+        }
       } else {
         setError(result.message ?? 'Notlar yüklenemedi');
       }
@@ -59,13 +94,48 @@ class HomeViewModel extends BaseViewModel {
     }
   }
 
+  Future<void> loadMoreNotes() async {
+    if (_isLoadingMore || !_hasMore) return;
+    _isLoadingMore = true;
+    notifyListeners();
+
+    try {
+      final nextPage = _page + 1;
+      final result = await _noteService.getNotes(
+        search: _searchQuery.isEmpty ? null : _searchQuery,
+        page: nextPage,
+        limit: _limit,
+      );
+
+      if (result.status && result.data != null) {
+        final fetched = result.data!;
+        _notes.addAll(fetched);
+
+        if (result.pagination != null) {
+          _hasMore = result.pagination!.hasNext;
+          _page = result.pagination!.page;
+        } else {
+          _hasMore = fetched.length == _limit;
+          if (_hasMore) _page = nextPage;
+        }
+      } else {
+        setError(result.message ?? 'Notlar yüklenemedi');
+      }
+    } catch (e) {
+      setError('Bir hata oluştu: $e');
+    } finally {
+      _isLoadingMore = false;
+      notifyListeners();
+    }
+  }
+
   void updateSearchQuery(String query) {
     _searchQuery = query;
     notifyListeners();
 
     _searchDebounceTimer?.cancel();
     _searchDebounceTimer = Timer(const Duration(milliseconds: 500), () {
-      loadNotes();
+      loadNotes(reset: true);
     });
   }
 
@@ -96,7 +166,7 @@ class HomeViewModel extends BaseViewModel {
     final result = await NavigationService.instance.navigateToPage<bool>(navEnum: NavigationEnums.newNote);
 
     if (result == true) {
-      loadNotes();
+      await loadNotes(reset: true);
       NavigationService.instance.showSnackBar('Note saved successfully!');
     }
   }
@@ -106,14 +176,10 @@ class HomeViewModel extends BaseViewModel {
       navEnum: NavigationEnums.noteDetail,
       data: note,
     );
+    await loadNotes(reset: true);
 
     if (result == true) {
-      await loadNotes();
       NavigationService.instance.showSnackBar('Note deleted successfully!');
-    } else if (result == false) {
-      await loadNotes();
-    } else {
-      await loadNotes();
     }
   }
 
@@ -135,6 +201,7 @@ class HomeViewModel extends BaseViewModel {
   @override
   void dispose() {
     _searchDebounceTimer?.cancel();
+    scrollController.dispose();
     super.dispose();
   }
 }
